@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS-based vehicle theft prevention system infrastructure
+
+Parameters:
+  LambdaMemory:
+    Type: Number
+    Default: 128
+  LambdaTimeout:
+    Type: Number
+    Default: 10
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt VehicleEventTable.Arn
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref SNSTopic
+
+  VehicleEventTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: VehicleEventTable
+      AttributeDefinitions:
+        - AttributeName: VehicleId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: VehicleId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub vehicle-images-bucket-${AWS::StackName}
+
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: VehicleTheftAlerts
+
+  IoTLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: IotDataProcessor
+      Runtime: python3.12.2
+      Handler: lambda_iot_processor.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 128
+      Timeout: 10
+      DeadLetterConfig:
+        TargetArn: !GetAtt DeadLetterQueue.Arn
+      TracingConfig:
+        Mode: PassThrough
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import os
+          def lambda_handler(event, context):
+              # ...existing code...
+              dynamodb = boto3.resource('dynamodb')
+              table = dynamodb.Table(os.environ.get('VEHICLE_TABLE'))
+              sns = boto3.client('sns')
+              alert_topic = os.environ.get('ALERT_TOPIC')
+              # Sample: iterate over records and persist events
+              for record in event.get('records', []):
+                  # Process record
+                  table.put_item(Item={'VehicleId': record.get('vehicleId'), 'Data': json.dumps(record)})
+                  # If anomaly detected, publish alert
+                  if record.get('anomaly'):
+                      sns.publish(TopicArn=alert_topic, Message='Anomaly detected for Vehicle ' + record.get('vehicleId'))
+              return {"status": "Processed"}
+      Environment:
+        Variables:
+          VEHICLE_TABLE: !Ref VehicleEventTable
+          ALERT_TOPIC: !Ref SNSTopic
+
+  IoTTopicRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: IoTToLambdaRule
+      RuleDisabled: false
+      TopicRulePayload:
+        sql: SELECT * FROM 'vehicle/telemetry'
+        actions:
+          - lambda:
+              functionArn: !GetAtt IoTLambdaFunction.Arn
+
+  SageMakerModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ModelName: VehicleTheftDetectionModel
+      PrimaryContainer:
+        Image: 123456789012.dkr.ecr.region.amazonaws.com/vit-base:latest
+      ExecutionRoleArn: !GetAtt LambdaExecutionRole.Arn
+
+  SageMakerEndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      EndpointConfigName: VehicleTheftEndpointConfig
+      ProductionVariants:
+        - InitialVariantWeight: 1
+          ModelName: !Ref SageMakerModel
+          VariantName: AllTraffic
+          ServerlessConfig:
+            MemorySizeInMB: 1024
+            MaxConcurrency: 5
+
+  SageMakerEndpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointName: VehicleTheftInferenceEndpoint
+      EndpointConfigName: !Ref SageMakerEndpointConfig
+
+  SecurityEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: SecurityEventRule
+      EventPattern:
+        source:
+          - aws.iot
+        detail-type:
+          - IotAlert
+      Targets:
+        - Arn: !GetAtt IoTLambdaFunction.Arn
+          Id: TargetFunction
+
+Outputs:
+  IoTLambdaFunctionArn:
+    Description: ARN of the IoT Lambda function
+    Value: !GetAtt IoTLambdaFunction.Arn
+  VehicleEventTableName:
+    Description: DynamoDB table name for vehicle events
+    Value: !Ref VehicleEventTable
+  SageMakerEndpointName:
+    Description: Name of the SageMaker inference endpoint
+    Value: !Ref SageMakerEndpoint
