@@ -217,7 +217,6 @@ aws cloudformation deploy --template-file za-cloudformation.yaml \
    Limited offer for early-adopter fleets in Cape Town  
 
 ---  
-*Developed in partnership with SA Automotive Hub, Tshwane*  
 **:email: SA Enquiries:** [zolisasilolo@gmail.com](mailto:zolisasilolo@gmail.com) | **Johannesburg HQ:** 
 
 ---  
@@ -354,7 +353,6 @@ aws cloudformation deploy --template-file za-cloudformation.yaml \
    Limited offer for early-adopter fleets in Johannesburg, Cape Town, and Durban. 
 
 ---  
-*Developed in partnership with SA Automotive Hub, Tshwane*  
 **:email: SA Enquiries:** (mailto:zolisasilolo@gmail.com) | **Johannesburg HQ:** +27 21 123 4567  
 
 ---  
@@ -362,7 +360,7 @@ aws cloudformation deploy --template-file za-cloudformation.yaml \
 
 ## :partnership: Why Partner With Us?  
 - *Proven in Production*  
-  Currently safeguarding 12,000+ vehicles across 8 countries.  
+  
 - *AWS Advanced Tier Partner*  
   Leverage our certified expertise in IoT and edge computing.  
 - *White-Label Options*  
