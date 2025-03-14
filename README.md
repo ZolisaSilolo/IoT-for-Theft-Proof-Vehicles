@@ -246,10 +246,6 @@ aws cloudformation deploy --template-file za-cloudformation.yaml \
    Limited offer for early-adopter fleets in Cape Town  
 
 ---  
-*Developed in partnership with SA Automotive Hub, Tshwane*  
-**:email: SA Enquiries:** [zolisasilolo@gmail.com](mailto:zolisasilolo@gmail.com) | **Johannesburg HQ:** 
-
----  
 *"This isn't just tech—it's a national mission to reclaim our roads." - Nandi M., Pilot Program Participant*  
 markdown
 # IoT-Driven Vehicle Security Platform: South Africa Edition  
@@ -383,7 +379,7 @@ aws cloudformation deploy --template-file za-cloudformation.yaml \
    Limited offer for early-adopter fleets in Johannesburg, Cape Town, and Durban. 
 
 ---  
-*Developed in partnership with SA Automotive Hub, Tshwane*  
+ 
 **:email: SA Enquiries:** (mailto:zolisasilolo@gmail.com) | **Johannesburg HQ:** +27 21 123 4567  
 
 ---  
@@ -404,4 +400,4 @@ Contact our solutions team at  for a custom threat assessment.
 Powered by AWS IoT Core | Certifications: ISO 27001, SOC 2 Type II  
 
 ---
->>>>>>> 3be126011d1e4d07c41b24db550e60109fb863e0
+
