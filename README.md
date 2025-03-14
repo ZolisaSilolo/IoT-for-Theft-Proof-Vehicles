@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # IoT for Theft-proof Vehicles
 
 ## Overview
