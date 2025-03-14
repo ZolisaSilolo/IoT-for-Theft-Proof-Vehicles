@@ -360,9 +360,7 @@ aws cloudformation deploy --template-file za-cloudformation.yaml \
 ---  
 *"This isn't just tech—it's a national mission to reclaim our roads." - Nandi M., Pilot Program Participant*  
 
-## :partnership: Why Partner With Us?  
-- *Proven in Production*  
-  Currently safeguarding 12,000+ vehicles across 8 countries.  
+## :partnership: Why Partner With Us?    
 - *AWS Advanced Tier Partner*  
   Leverage our certified expertise in IoT and edge computing.  
 - *White-Label Options*  
