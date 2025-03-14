@@ -87,8 +87,8 @@ Our *Unified Dashboard* (AWS CloudWatch-powered) provides:
 ---
 
 ## :partnership: Why Partner With Us?  
-- *Proven in Production*  
-  Currently safeguarding 12,000+ vehicles across 8 countries.  
+- *Production Ready Software*  
+  With hardware, it will be safeguarding 12,000+ vehicles across any country which can be deployed anywhere in the world.  
 - *AWS Advanced Tier Partner*  
   Leverage our certified expertise in IoT and edge computing.  
 - *White-Label Options*  
